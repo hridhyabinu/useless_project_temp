@@ -2,7 +2,7 @@
 
 
 
-# [Project Name] 🎯
+# [Mukham nokunna yenthram] 🎯
 
 
 ## Basic Details
@@ -14,7 +14,9 @@
 
 
 ### Project Description
-[the mukham mokkum entram is actucally a useless project that was completely generated from a stupid way for thinking i have tried to make an intro video for this project but due to PC limitation i was not able to run the result as i expected hope that the ]
+[Mukham Nokkum Yenthram (മുഖം നോക്കും യന്ത്രം) is a playful, over-engineered facial analysis web terminal wrapped in a powder-blue retro architectural UI. Built using FastAPI, MediaPipe, and OpenCV, it solves a problem nobody had: confirming that human faces indeed have eyes, noses, and mouths.
+
+The application streams an auto-playing retro intro video, processes user-uploaded photos via Python-powered computer vision models, and computes a detailed breakdown of detected facial features with Malayalam anatomical labeling (Mukha Ennam, Kannugal, Mooku, etc.).]
 
 ### The Problem (that doesn't exist)
 In a world where humans have been looking in mirrors and seeing faces for thousands of years, there has been a tragic, catastrophic lack of software explicitly confirming that your face indeed contains eyes, a nose, and a mouth in Malayalam.

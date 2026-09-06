@@ -1,0 +1,86 @@
+import os
+import cv2
+import mediapipe as mp
+import numpy as np
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
+
+app = FastAPI(
+    title="Mukha Dharshan API",
+    description="API for facial feature analysis and landmark detection."
+)
+
+# Allowed origins - configure for your frontend domain in production
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Initialize Mediapipe Face Mesh
+mp_face_mesh = mp.solutions.face_mesh
+face_mesh = mp_face_mesh.FaceMesh(
+    static_image_mode=True,
+    max_num_faces=20,
+    min_detection_confidence=0.5
+)
+
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to Mukha Dharshan API. Use POST /analyze to upload an image."}
+
+@app.get("/health")
+def health_check():
+    """Health check endpoint required by cloud platforms (Render, AWS, GCP)."""
+    return {"status": "healthy"}
+
+@app.post("/analyze")
+async def analyze_photo(file: UploadFile = File(...)):
+    try:
+        # Validate file type
+        if not file.content_type.startswith("image/"):
+            return JSONResponse(status_code=400, content={"error": "Uploaded file is not an image."})
+
+        contents = await file.read()
+        nparr = np.frombuffer(contents, np.uint8)
+        image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        
+        if image is None:
+            return JSONResponse(status_code=400, content={"error": "Invalid or corrupted image file."})
+
+        rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        results = face_mesh.process(rgb_image)
+
+        if not results.multi_face_landmarks:
+            return {
+                "faces": 0,
+                "eyes": 0,
+                "noses": 0,
+                "mouths": 0,
+                "lips": 0,
+                "message": "No faces detected."
+            }
+
+        total_faces = len(results.multi_face_landmarks)
+
+        return {
+            "faces": total_faces,
+            "eyes": total_faces * 2,
+            "noses": total_faces,
+            "mouths": total_faces,
+            "lips": total_faces * 2
+        }
+        
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": f"Internal server error: {str(e)}"})
+
+if __name__ == "__main__":
+    # Dynamically bind port for cloud providers (defaults to 8000 locally)
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)

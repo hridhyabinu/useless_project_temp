@@ -1,4 +1,4 @@
-<img width="1280" height="640" alt="git (1)" src="https://github.com/user-attachments/assets/8920b256-2ba8-4988-b824-5351134eb4bd" />
+<img width="978" height="451" alt="WhatsApp Image 2026-09-06 at 10 39 39 (1)" src="https://github.com/user-attachments/assets/adc1f783-e608-4e6d-8865-f4b847b57488" /><img width="1280" height="640" alt="git (1)" src="https://github.com/user-attachments/assets/8920b256-2ba8-4988-b824-5351134eb4bd" />
 
 
 
@@ -10,74 +10,79 @@
 
 
 ### Team Members
-- Team Lead: [Hridhya Binu] - [VJCET]
+- Team Lead: [Hridhya Binu] - [Viswajyothi College of Engineering and Technology]
 
 
 ### Project Description
 [the mukham mokkum entram is actucally a useless project that was completely generated from a stupid way for thinking i have tried to make an intro video for this project but due to PC limitation i was not able to run the result as i expected hope that the ]
 
 ### The Problem (that doesn't exist)
-[What ridiculous problem are you solving?]
+In a world where humans have been looking in mirrors and seeing faces for thousands of years, there has been a tragic, catastrophic lack of software explicitly confirming that your face indeed contains eyes, a nose, and a mouth in Malayalam.
 
 ### The Solution (that nobody asked for)
-[How are you solving it? Keep it fun!]
+An AI-powered computer vision engine that processes image uploads, extracts MediaPipe 3D face mesh landmarks, and produces a highly dramatic breakdown of your facial components—complete with an auto-playing retro intro video splash modal.
 
 ## Technical Details
 ### Technologies/Components Used
 For Software:
-- pytthon and html]
-- [Frameworks used]
-- [Libraries used]
-- [Tools used]
+- **Languages:** Python, HTML5, JavaScript, CSS3
+- **Frameworks & Libraries:** FastAPI, OpenCV (`opencv-python`), MediaPipe Face Mesh, NumPy, Uvicorn
+- **Styling & UI:** Tailwind CSS (via CDN), Google Fonts (`Cormorant Garamond` & `JetBrains Mono`)
+- **Deployment & Hosting:** GitHub Pages (Frontend), Hugging Face Spaces / Render (Backend API)
 
 For Hardware:
-- [List main components]
-- [List specifications]
-- [List tools required]
+- *None (Software only)*
+
+---
 
 ### Implementation
-For Software:
-# Installation
-[chttps://hridhyabinu.github.io/useless_project_temp/]
+
+#### Installation
+1. Clone the repository:
+   git clone [https://github.com/hridhyabinu/useless_project_temp.git](https://github.com/hridhyabinu/useless_project_temp.git)
+   cd useless_project_temp
+   pip install fastapi uvicorn opencv-python mediapipe numpy
 
 # Run
 []https://hridhyabinu.github.io/useless_project_temp/
+python main.py
 
 ### Project Documentation
 For Software:
 
-# Screenshots (Add at least 3)
-![Screenshot1](Add screenshot 1 here with proper name)
-*Add caption explaining what this shows*
+Screenshots 
 
-![Screenshot2](Add screenshot 2 here with proper name)
-*Add caption explaining what this shows*
+screenshot 1
+<img width="1010" height="474" alt="WhatsApp Image 2026-09-06 at 10 39 39 (2)" src="https://github.com/user-attachments/assets/22569e52-503d-4090-8399-0f432fd95430" />
+*this is the home screen
 
-![Screenshot3](Add screenshot 3 here with proper name)
-*Add caption explaining what this shows*
+screenshot 2
+<img width="978" height="451" alt="WhatsApp Image 2026-09-06 at 10 39 39 (1)" src="https://github.com/user-attachments/assets/b0f6d4fe-fa35-4e22-8a4d-bb2449a21393" />
+*the user will be able to upload their pic. this is the 2nd frame
+
+screenshot 3
+<img width="978" height="451" alt="WhatsApp Image 2026-09-06 at 10 39 39 (1)" src="https://github.com/user-attachments/assets/1da0ef23-31f7-4b5c-b2b3-2e521693a641" />
+
+*this is 3rd frame. this frames shows the results i.e, the number of faces, the number of eyes, nose, lips and mouth
 
 # Diagrams
-![Workflow](Add your workflow/architecture diagram here)
-*Add caption explaining your workflow*
-
-For Hardware:
-
-# Schematic & Circuit
-![Circuit](Add your circuit diagram here)
-*Add caption explaining connections*
-
-![Schematic](Add your schematic diagram here)
-*Add caption explaining the schematic*
-
-# Build Photos
-![Components](Add photo of your components here)
-*List out all components shown*
-
-![Build](Add photos of build process here)
-*Explain the build steps*
-
-![Final](Add photo of final product here)
-*Explain the final build*
++-------------------+        +----------------------+        +-----------------------+
+|  User Image Input |  --->  | FastAPI /analyze API |  --->  |  MediaPipe Face Mesh  |
++-------------------+        +----------------------+        +-----------------------+
+                                                                         |
++------------------------------------------------------------------------+
+|
+v
++-----------------------+        +----------------------+        +-----------------------+
+| Landmark Matrix Math  |  --->  | JSON Count Response  |  --->  | Malayalam Tally Display|
++-----------------------+        +----------------------+        +-----------------------+
+*Workflow Explanation:*
+1. **User Input:** The frontend interface captures a user-uploaded image via the HTML5 canvas stage.
+2. **API Request:** The image is sent as a `multipart/form-data` payload to the FastAPI `/analyze` endpoint via HTTP POST.
+3. **Landmark Extraction:** The backend decodes the binary stream using OpenCV (`cv2.imdecode`) and passes the RGB image to MediaPipe's 3D Face Mesh model.
+4. **Anatomical Calculation:** MediaPipe detects facial landmark meshes. The API counts detected face instances and calculates the feature tallies (eyes, noses, mouths, lips) mathematically.
+5. **JSON Response:** A JSON object containing the feature breakdown counts and status message is returned to the client.
+6. **Malayalam Tally Display:** The frontend dynamically updates the UI cards with the calculated metrics and their Malayalam labels (*Mukha Ennam*, *Kannugal*, *Mooku*, etc.).
 
 ### Project Demo
 # Video
@@ -86,10 +91,6 @@ https://drive.google.com/file/d/1FQLe7fDOhCagN0_ZUSvksZ-2gmFqWriF/view?usp=shari
 # Additional Demos
 []
 https://hridhyabinu.github.io/useless_project_temp/
-## Team Contributions
-- [Name 1]: [Specific contributions]
-- [Name 2]: [Specific contributions]
-- [Name 3]: [Specific contributions]
 
 ---
 Made with ❤️ at TinkerHub Useless Projects 

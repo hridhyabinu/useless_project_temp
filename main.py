@@ -1,86 +1,50 @@
-import os
-import cv2
-import mediapipe as mp
-import numpy as np
-from fastapi import FastAPI, File, UploadFile
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mukham Nokkum Yenthram (മുഖം നോക്കും യന്ത്രം)</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 
-app = FastAPI(
-    title="Mukha Dharshan API",
-    description="API for facial feature analysis and landmark detection."
-)
-
-# Allowed origins - configure for your frontend domain in production
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Initialize Mediapipe Face Mesh
-mp_face_mesh = mp.solutions.face_mesh
-face_mesh = mp_face_mesh.FaceMesh(
-    static_image_mode=True,
-    max_num_faces=20,
-    min_detection_confidence=0.5
-)
-
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to Mukha Dharshan API. Use POST /analyze to upload an image."}
-
-@app.get("/health")
-def health_check():
-    """Health check endpoint required by cloud platforms (Render, AWS, GCP)."""
-    return {"status": "healthy"}
-
-@app.post("/analyze")
-async def analyze_photo(file: UploadFile = File(...)):
-    try:
-        # Validate file type
-        if not file.content_type.startswith("image/"):
-            return JSONResponse(status_code=400, content={"error": "Uploaded file is not an image."})
-
-        contents = await file.read()
-        nparr = np.frombuffer(contents, np.uint8)
-        image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        
-        if image is None:
-            return JSONResponse(status_code=400, content={"error": "Invalid or corrupted image file."})
-
-        rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        results = face_mesh.process(rgb_image)
-
-        if not results.multi_face_landmarks:
-            return {
-                "faces": 0,
-                "eyes": 0,
-                "noses": 0,
-                "mouths": 0,
-                "lips": 0,
-                "message": "No faces detected."
-            }
-
-        total_faces = len(results.multi_face_landmarks)
-
-        return {
-            "faces": total_faces,
-            "eyes": total_faces * 2,
-            "noses": total_faces,
-            "mouths": total_faces,
-            "lips": total_faces * 2
+    <style>
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #e0f2fe;
+            background-image: linear-gradient(#93c5fd 1px, transparent 1px), linear-gradient(90deg, #93c5fd 1px, transparent 1px);
+            background-size: 24px 24px;
         }
-        
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"error": f"Internal server error: {str(e)}"})
+        .font-serif-header {
+            font-family: 'Cormorant Garamond', serif;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-900 flex flex-col justify-between p-4 md:p-8">
 
-if __name__ == "__main__":
-    # Dynamically bind port for cloud providers (defaults to 8000 locally)
-    port = int(os.getenv("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
+    <div id="intro-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-[#e0f2fe] border-2 border-slate-900 p-6 md:p-8 max-w-xl w-full text-center shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] rounded-none">
+            <h2 class="font-serif-header text-3xl md:text-4xl font-bold tracking-tight mb-1 text-slate-900">
+                മുഖം നോക്കും യന്ത്രം
+            </h2>
+            <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-4">
+                Automated Face-Looking Machine v1.0
+            </p>
+
+            <div class="border-2 border-slate-900 bg-black mb-6 overflow-hidden aspect-video shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] relative flex items-center justify-center">
+                <video id="intro-video" 
+                       class="w-full h-full object-cover" 
+                       autoplay 
+                       loop 
+                       muted 
+                       playsinline>
+                    <source src="/stream-video/intro.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+
+            <p class="text-xs text-slate-700 mb-6 leading-relaxed font-mono">
+                Optical sensors ready. Click below to un-mute intro video audio and engage Mukham

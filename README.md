@@ -10,12 +10,11 @@
 
 
 ### Team Members
-- Team Lead: [Name] - [College]
-- Member 2: [Name] - [College]
-- Member 3: [Name] - [College]
+- Team Lead: [Hridhya Binu] - [VJCET]
+
 
 ### Project Description
-[2-3 lines about what your project does]
+[the mukham mokkum entram is actucally a useless project that was completely generated from a stupid way for thinking i have tried to make an intro video for this project but due to PC limitation i was not able to run the result as i expected hope that the ]
 
 ### The Problem (that doesn't exist)
 [What ridiculous problem are you solving?]
@@ -26,7 +25,7 @@
 ## Technical Details
 ### Technologies/Components Used
 For Software:
-- [Languages used]
+- pytthon and html]
 - [Frameworks used]
 - [Libraries used]
 - [Tools used]
@@ -39,10 +38,10 @@ For Hardware:
 ### Implementation
 For Software:
 # Installation
-[commands]
+[chttps://hridhyabinu.github.io/useless_project_temp/]
 
 # Run
-[commands]
+[]https://hridhyabinu.github.io/useless_project_temp/
 
 ### Project Documentation
 For Software:
@@ -82,12 +81,12 @@ For Hardware:
 
 ### Project Demo
 # Video
-[Add your demo video link here]
+[Add your demo video link here]https://hridhyabinu.github.io/useless_project_temp/
 *Explain what the video demonstrates*
 
 # Additional Demos
-[Add any extra demo materials/links]
-
+[]
+https://hridhyabinu.github.io/useless_project_temp/
 ## Team Contributions
 - [Name 1]: [Specific contributions]
 - [Name 2]: [Specific contributions]

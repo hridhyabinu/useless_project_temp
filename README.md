@@ -68,16 +68,8 @@ screenshot 3
 *this is 3rd frame. this frames shows the results i.e, the number of faces, the number of eyes, nose, lips and mouth
 
 # Diagrams
-+-------------------+        +----------------------+        +-----------------------+
-|  User Image Input |  --->  | FastAPI /analyze API |  --->  |  MediaPipe Face Mesh  |
-+-------------------+        +----------------------+        +-----------------------+
-                                                                         |
-+------------------------------------------------------------------------+
-|
-v
-+-----------------------+        +----------------------+        +-----------------------+
-| Landmark Matrix Math  |  --->  | JSON Count Response  |  --->  | Malayalam Tally Display|
-+-----------------------+        +----------------------+        +-----------------------+
+<img width="1015" height="540" alt="image" src="https://github.com/user-attachments/assets/fbc7b5b8-cb4f-4fd6-8605-550958d7e154" />
+
 *Workflow Explanation:*
 1. **User Input:** The frontend interface captures a user-uploaded image via the HTML5 canvas stage.
 2. **API Request:** The image is sent as a `multipart/form-data` payload to the FastAPI `/analyze` endpoint via HTTP POST.

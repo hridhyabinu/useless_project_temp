@@ -1,4 +1,16 @@
-<!DOCTYPE html>
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+import os
+
+app = FastAPI(title="Mukham Nokkum Yenthram", version="1.0")
+
+# Optional: If you have a directory for static files/videos, make sure it exists or mount it safely
+# app.mount("/stream-video", StaticFiles(directory="static"), name="static")
+
+@app.get("/", response_class=HTMLResponse)
+async def read_root(request: Request):
+    html_content = """<!DOCTYPE html>
 <html lang="ml">
 <head>
     <meta charset="UTF-8">
@@ -27,7 +39,7 @@
 
     <div id="intro-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-[#e0f2fe] border-2 border-slate-900 p-6 md:p-8 max-w-xl w-full text-center shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] rounded-none">
-            <h2 class="font-serif-header text-3xl md:text-4xl font-bold tracking-tight mb-1 text-slate-900">
+            <h2 class="font-serif-header text-3xl md:4xl font-bold tracking-tight mb-1 text-slate-900">
                 മുഖം നോക്കും യന്ത്രം
             </h2>
             <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-4">
@@ -48,3 +60,10 @@
 
             <p class="text-xs text-slate-700 mb-6 leading-relaxed font-mono">
                 Optical sensors ready. Click below to un-mute intro video audio and engage Mukham
+            </p>
+        </div>
+    </div>
+
+</body>
+</html>"""
+    return HTMLResponse(content=html_content)

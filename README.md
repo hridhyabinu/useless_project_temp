@@ -81,8 +81,7 @@ For Hardware:
 
 ### Project Demo
 # Video
-[Add your demo video link here]https://hridhyabinu.github.io/useless_project_temp/
-*Explain what the video demonstrates*
+https://drive.google.com/file/d/1FQLe7fDOhCagN0_ZUSvksZ-2gmFqWriF/view?usp=sharing
 
 # Additional Demos
 []

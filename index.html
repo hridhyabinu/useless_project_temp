@@ -1,282 +1,86 @@
-<!DOCTYPE html>
-<html lang="ml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mukham Nokkum Yenthram (മുഖം നോക്കും യന്ത്രം)</title>
-    
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts for Editorial Aesthetic -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+import os
+import cv2
+import mediapipe as mp
+import numpy as np
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
 
-    <style>
-        body {
-            font-family: 'JetBrains Mono', monospace;
-            background-color: #e0f2fe;
-            background-image: linear-gradient(#93c5fd 1px, transparent 1px), linear-gradient(90deg, #93c5fd 1px, transparent 1px);
-            background-size: 24px 24px;
-        }
-        .font-serif-header {
-            font-family: 'Cormorant Garamond', serif;
-        }
-    </style>
-</head>
-<body class="min-h-screen text-slate-900 flex flex-col justify-between p-4 md:p-8">
+app = FastAPI(
+    title="Mukha Dharshan API",
+    description="API for facial feature analysis and landmark detection."
+)
 
-    <!-- ================= INTRO SPLASH MODAL (YOUTUBE EMBED) ================= -->
-    <div id="intro-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-500">
-        <div class="bg-[#e0f2fe] border-2 border-slate-900 p-6 md:p-8 max-w-xl w-full text-center shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] rounded-none">
-            <h2 class="font-serif-header text-3xl md:text-4xl font-bold tracking-tight mb-1 text-slate-900">
-                മുഖം നോക്കും യന്ത്രം
-            </h2>
-            <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-4">
-                Automated Face-Looking Machine v1.0
-            </p>
+# Allowed origins - configure for your frontend domain in production
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 
-            <!-- Local Video Container -->
-            <div class="border-2 border-slate-900 bg-black mb-6 overflow-hidden aspect-video shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] relative flex items-center justify-center">
-                <video id="intro-video" class="w-full h-full object-contain" loop playsinline preload="auto" autoplay muted>
-                    <source src="/static/media/intro.mp4" type="video/mp4">
-                    Your browser does not support HTML5 video playback.
-                </video>
-            </div>
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-            <p class="text-xs text-slate-700 mb-6 leading-relaxed font-mono">
-                Optical sensors ready. Click below to un-mute video audio and engage Mukham Nokkum Yenthram.
-            </p>
+# Initialize Mediapipe Face Mesh
+mp_face_mesh = mp.solutions.face_mesh
+face_mesh = mp_face_mesh.FaceMesh(
+    static_image_mode=True,
+    max_num_faces=20,
+    min_detection_confidence=0.5
+)
 
-            <button id="start-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 border-2 border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all uppercase tracking-wider text-sm">
-                🕺 START YENTHRAM & UNMUTE AUDIO
-            </button>
-        </div>
-    </div>
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to Mukha Dharshan API. Use POST /analyze to upload an image."}
 
-    <!-- ================= MAIN DASHBOARD HEADER ================= -->
-    <header class="max-w-7xl mx-auto w-full mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white border-2 border-slate-900 p-4 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] rounded-none">
-        <div>
-            <h1 class="font-serif-header text-3xl md:text-4xl font-bold text-slate-900 leading-none">
-                Mukham Nokkum Yenthram <span class="text-xl text-blue-600">(മുഖം നോക്കും യന്ത്രം)</span>
-            </h1>
-            <p class="text-xs text-slate-500 font-mono tracking-wider uppercase mt-1">
-                Zero-G Visual Landmark Terminal & Anatomical Feature Tally
-            </p>
-        </div>
-        
-        <div class="flex items-center gap-3">
-            <button id="audio-toggle-btn" class="bg-amber-300 hover:bg-amber-400 text-slate-900 font-bold px-4 py-2 border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] text-xs uppercase tracking-wider transition-all">
-                🔊 MUTE / UNMUTE INTRO AUDIO
-            </button>
-        </div>
-    </header>
+@app.get("/health")
+def health_check():
+    """Health check endpoint required by cloud platforms (Render, AWS, GCP)."""
+    return {"status": "healthy"}
 
-    <!-- ================= MAIN WORKSPACE ================= -->
-    <main class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-3 gap-6 mb-auto">
-        
-        <!-- CANVAS DISPLAY STAGE -->
-        <section class="lg:col-span-2 bg-white border-2 border-slate-900 p-4 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] flex flex-col items-center justify-center min-h-[420px] relative rounded-none">
-            
-            <div class="w-full flex justify-between items-center mb-4 pb-2 border-b-2 border-slate-900">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-700">
-                    📷 Optical Sensor Stage
-                </span>
-                <label for="image-input" class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] text-xs uppercase tracking-wider transition-all">
-                    UPLOAD PHOTO
-                </label>
-                <input type="file" id="image-input" accept="image/*" class="hidden">
-            </div>
+@app.post("/analyze")
+async def analyze_photo(file: UploadFile = File(...)):
+    try:
+        # Validate file type
+        if not file.content_type.startswith("image/"):
+            return JSONResponse(status_code=400, content={"error": "Uploaded file is not an image."})
 
-            <div class="relative w-full overflow-hidden flex items-center justify-center bg-slate-100 border border-slate-300 min-h-[350px]">
-                <canvas id="stage-canvas" class="max-w-full max-h-[550px] object-contain hidden"></canvas>
-                <div id="canvas-placeholder" class="text-center p-8 text-slate-400">
-                    <p class="text-sm font-mono font-semibold">NO OPTICAL FEED LOADED</p>
-                    <p class="text-xs mt-1">Upload an image to engage Mukham Nokkum Yenthram</p>
-                </div>
-            </div>
+        contents = await file.read()
+        nparr = np.frombuffer(contents, np.uint8)
+        image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        
+        if image is None:
+            return JSONResponse(status_code=400, content={"error": "Invalid or corrupted image file."})
 
-            <div class="w-full bg-slate-900 text-green-400 p-2 border-t-2 border-slate-900 font-mono text-xs mt-4 flex items-center justify-between">
-                <span id="system-status">> SYSTEM IDLE. AWAITING OPTICAL INPUT...</span>
-                <span id="antigravity-indicator" class="text-amber-400 hidden">[ ANTIGRAVITY ENGAGED 🚀 ]</span>
-            </div>
-        </section>
+        rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        results = face_mesh.process(rgb_image)
 
-        <!-- MALAYALAM METRIC TALLY GRID -->
-        <section class="bg-white border-2 border-slate-900 p-4 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] flex flex-col justify-between rounded-none">
-            <div>
-                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 pb-2 border-b-2 border-slate-900 mb-4">
-                    📊 Anatomical Feature Tally (ശരീരഘടന)
-                </h3>
+        if not results.multi_face_landmarks:
+            return {
+                "faces": 0,
+                "eyes": 0,
+                "noses": 0,
+                "mouths": 0,
+                "lips": 0,
+                "message": "No faces detected."
+            }
 
-                <div class="grid grid-cols-1 gap-3">
-                    <div class="p-3 bg-slate-50 border-2 border-slate-900 flex items-center justify-between shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]">
-                        <div>
-                            <p class="text-xs font-bold text-slate-500 uppercase">Faces Identified</p>
-                            <p class="text-lg font-bold text-slate-900">Mukha Ennam (മുഖം എണ്ണം)</p>
-                        </div>
-                        <span id="count-faces" class="text-3xl font-bold font-mono text-blue-600">0</span>
-                    </div>
+        total_faces = len(results.multi_face_landmarks)
 
-                    <div class="p-3 bg-slate-50 border-2 border-slate-900 flex items-center justify-between shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]">
-                        <div>
-                            <p class="text-xs font-bold text-slate-500 uppercase">Eyes Counted</p>
-                            <p class="text-lg font-bold text-slate-900">Kannugal (കണ്ണുകൾ)</p>
-                        </div>
-                        <span id="count-eyes" class="text-3xl font-bold font-mono text-indigo-600">0</span>
-                    </div>
+        return {
+            "faces": total_faces,
+            "eyes": total_faces * 2,
+            "noses": total_faces,
+            "mouths": total_faces,
+            "lips": total_faces * 2
+        }
+        
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": f"Internal server error: {str(e)}"})
 
-                    <div class="p-3 bg-slate-50 border-2 border-slate-900 flex items-center justify-between shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]">
-                        <div>
-                            <p class="text-xs font-bold text-slate-500 uppercase">Noses Counted</p>
-                            <p class="text-lg font-bold text-slate-900">Mooku (മൂക്ക്)</p>
-                        </div>
-                        <span id="count-noses" class="text-3xl font-bold font-mono text-emerald-600">0</span>
-                    </div>
-
-                    <div class="p-3 bg-slate-50 border-2 border-slate-900 flex items-center justify-between shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]">
-                        <div>
-                            <p class="text-xs font-bold text-slate-500 uppercase">Mouths Counted</p>
-                            <p class="text-lg font-bold text-slate-900">Kenar (കിണർ)</p>
-                        </div>
-                        <span id="count-mouths" class="text-3xl font-bold font-mono text-amber-600">0</span>
-                    </div>
-
-                    <div class="p-3 bg-slate-50 border-2 border-slate-900 flex items-center justify-between shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]">
-                        <div>
-                            <p class="text-xs font-bold text-slate-500 uppercase">Lips Counted</p>
-                            <p class="text-lg font-bold text-slate-900">Chundugal (ചുണ്ടുകൾ)</p>
-                        </div>
-                        <span id="count-lips" class="text-3xl font-bold font-mono text-rose-600">0</span>
-                    </div>
-                </div>
-            </div>
-
-            <button id="analyze-btn" class="w-full mt-6 bg-emerald-500 hover:bg-emerald-600 text-slate-900 font-bold py-3 px-4 border-2 border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all uppercase tracking-wider text-xs">
-                ⚡ RE-RUN MUKHAM ANALYSIS
-            </button>
-        </section>
-
-    </main>
-
-    <footer class="max-w-7xl mx-auto w-full mt-6 text-center text-xs text-slate-600 font-mono">
-        Mukham Nokkum Yenthram (മുഖം നോക്കും യന്ത്രം) &copy; 2026 | Powder Blue Architectural Grid Interface
-    </footer>
-
-    <script>
-        const API_URL = "http://localhost:8001/analyze";
-        
-        // Modal Logic
-        const introModal = document.getElementById('intro-modal');
-        const startBtn = document.getElementById('start-btn');
-        const introVideo = document.getElementById('intro-video');
-        const audioToggleBtn = document.getElementById('audio-toggle-btn');
-        
-        startBtn.addEventListener('click', () => {
-            introModal.style.opacity = '0';
-            setTimeout(() => {
-                introModal.style.display = 'none';
-            }, 500);
-            
-            if (introVideo) {
-                introVideo.muted = false;
-                introVideo.play().catch(e => console.log('Video play failed:', e));
-            }
-        });
-        
-        audioToggleBtn.addEventListener('click', () => {
-            if (introVideo) {
-                introVideo.muted = !introVideo.muted;
-            }
-        });
-
-        // App Logic
-        const imageInput = document.getElementById('image-input');
-        const stageCanvas = document.getElementById('stage-canvas');
-        const canvasPlaceholder = document.getElementById('canvas-placeholder');
-        const systemStatus = document.getElementById('system-status');
-        const antigravityIndicator = document.getElementById('antigravity-indicator');
-        const analyzeBtn = document.getElementById('analyze-btn');
-        
-        let currentFile = null;
-
-        const updateTally = (faces, eyes, noses, mouths, lips) => {
-            document.getElementById('count-faces').innerText = faces;
-            document.getElementById('count-eyes').innerText = eyes;
-            document.getElementById('count-noses').innerText = noses;
-            document.getElementById('count-mouths').innerText = mouths;
-            document.getElementById('count-lips').innerText = lips;
-        };
-
-        const processImage = async (file) => {
-            if (!file) return;
-            
-            systemStatus.innerText = "> TRANSMITTING TO BACKEND OVER SECURE CHANNEL...";
-            systemStatus.className = "text-amber-400";
-            antigravityIndicator.classList.add('hidden');
-            
-            const formData = new FormData();
-            formData.append("file", file);
-
-            try {
-                const response = await fetch(API_URL, {
-                    method: "POST",
-                    body: formData
-                });
-                
-                const result = await response.json();
-                
-                if (response.ok) {
-                    updateTally(result.faces, result.eyes, result.noses, result.mouths, result.lips);
-                    systemStatus.innerText = "> ANALYSIS COMPLETE. ZERO-G PROTOCOL ENGAGED.";
-                    systemStatus.className = "text-green-400";
-                    antigravityIndicator.classList.remove('hidden');
-                } else {
-                    systemStatus.innerText = "> ERROR: " + (result.error || result.message);
-                    systemStatus.className = "text-rose-500";
-                }
-            } catch (err) {
-                console.error(err);
-                systemStatus.innerText = "> CRITICAL ERROR: API SERVER NOT RESPONDING ON PORT 8001.";
-                systemStatus.className = "text-rose-500";
-            }
-        };
-
-        imageInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            currentFile = file;
-
-            // Draw to canvas
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const img = new Image();
-                img.onload = () => {
-                    canvasPlaceholder.style.display = 'none';
-                    stageCanvas.classList.remove('hidden');
-                    
-                    const ctx = stageCanvas.getContext('2d');
-                    stageCanvas.width = img.width;
-                    stageCanvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
-                    
-                    // Process API
-                    processImage(file);
-                };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-        });
-
-        analyzeBtn.addEventListener('click', () => {
-            if (currentFile) {
-                processImage(currentFile);
-            } else {
-                alert("Please upload an image first.");
-            }
-        });
-    </script>
-</body>
-</html>
+if __name__ == "__main__":
+    # Dynamically bind port for cloud providers (defaults to 8000 locally)
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)

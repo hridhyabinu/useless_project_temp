@@ -1,4 +1,4 @@
-<img width="978" height="451" alt="WhatsApp Image 2026-09-06 at 10 39 39 (1)" src="https://github.com/user-attachments/assets/adc1f783-e608-4e6d-8865-f4b847b57488" /><img width="1280" height="640" alt="git (1)" src="https://github.com/user-attachments/assets/8920b256-2ba8-4988-b824-5351134eb4bd" />
+<img width="1280" height="640" alt="git (1)" src="https://github.com/user-attachments/assets/8920b256-2ba8-4988-b824-5351134eb4bd" />
 
 
 
